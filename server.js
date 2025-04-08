@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
   res.status(200).json({ status: 'success', message: 'Welcome to my API' });
 });
 
-app.use('/api/messages', messageRoutes);
+app.use('/63729/892308', messageRoutes);
 // After other middleware
 app.use('/api/subscriptions', subscriptionRoutes);
 
