@@ -1,4 +1,4 @@
-const Subscription = require('../models/Subscription');
+const Subscription = require('../models/subscription');
 const nodemailer = require('nodemailer');
 const emailConfig = require('../config/emailConfig');
 

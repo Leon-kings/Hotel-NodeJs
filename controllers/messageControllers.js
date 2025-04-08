@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
-const Message = require("../models/Message");
+const Message = require("../models/message");
 const emailConfig = require("../config/emailConfig");
 
 // Create transporter
