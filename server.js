@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 
 app.use('/63729/892308', messageRoutes);
 // After other middleware
-app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/83920/92303', subscriptionRoutes);
 
 // Start the server
 app.listen(PORT, () => console.log(`App started on port ${PORT}`));
