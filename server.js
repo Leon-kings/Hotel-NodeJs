@@ -5,8 +5,9 @@ const dotenv = require('dotenv');
 const express = require('express');
 const messageRoutes = require('./routes/messageRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const bookRoutes = require('./routes/bookRoutes')
 dotenv.config();
-
+require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -30,7 +31,8 @@ app.get('/', (req, res) => {
 app.use('/63729/892308', messageRoutes);
 // After other middleware
 app.use('/83920/92303', subscriptionRoutes);
-
+// 
+app.use('/84383/92823', bookRoutes);
 // Start the server
 app.listen(PORT, () => console.log(`App started on port ${PORT}`));
 
