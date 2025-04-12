@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
 const Message = require("../models/message");
 const emailConfig = require("../config/emailConfig");
-
+const { sendMessageToAdmin } = require('../config/emailServices');
 // Create transporter
 const transporter = nodemailer.createTransport({
   service: emailConfig.service,
@@ -20,63 +20,50 @@ const messageController = {
    * Send a message to admin email and save it to MongoDB
    */
   sendMessageToAdmin: async (req, res) => {
-    try {
-      const { name, email, subject,phone, message } = req.body;
+  try {
+    const { name, email, subject, phone, message } = req.body;
 
-      // Validate input
-      if (!name || !email || !message) {
-        return res.status(400).json({
-          success: false,
-          message: "Name, email, and message are required",
-        });
-      }
-
-      // Save message to MongoDB
-      const savedMessage = await Message.create({
-        name,
-        email,
-        subject,
-        phone,
-        message,
-      });
-
-      // Verify transporter
-      await transporter.verify();
-
-      const mailOptions = {
-        from: `"Contact Form" <no-reply@yourdomain.com>`,
-        replyTo: `"${name}" <${email}>`,
-        to: emailConfig.adminEmail,
-        subject: subject || "New message from contact form",
-        text: message,
-        html: `
-          <h2>New Message from ${name}</h2>
-          <p><strong>Email:</strong> ${email}</p>
-          ${subject ? `<p><strong>Subject:</strong> ${subject}</p>` : ''}
-          <p><strong>Message:</strong></p>
-          <p>${message.replace(/\n/g, '<br>')}</p>
-        `,
-      };
-
-      // Send email
-      const info = await transporter.sendMail(mailOptions);
-      console.log("Email sent:", info.response);
-
-      res.status(200).json({
-        success: true,
-        message: "Message saved and sent successfully",
-        data: savedMessage,
-      });
-    } catch (error) {
-      console.error("Error sending message:", error);
-      res.status(500).json({
+    // Validate required fields
+    if (!name || !email || !message) {
+      return res.status(400).json({
         success: false,
-        message: "Failed to send message",
-        error: process.env.NODE_ENV === "development" ? error.message : undefined,
+        message: "Name, email, and message are required fields"
       });
     }
-  },
 
+    // Save to database
+    const newMessage = await Message.create({
+      name,
+      email,
+      subject,
+      phone,
+      message
+    });
+
+    // Send emails
+    const emailResult = await sendMessageToAdmin(newMessage.toObject());
+
+    res.status(201).json({
+      success: true,
+      message: "Message sent successfully",
+      data: {
+        message: newMessage,
+        emailStatus: {
+          customer: emailResult.customerEmail ? "sent" : "failed",
+          admin: emailResult.adminEmail ? "sent" : "failed"
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Message creation error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to process message",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+},
   /**
    * Get all messages
    */
@@ -130,6 +117,91 @@ const messageController = {
       });
     }
   },
+
+  // ***
+
+  editMessage: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, email, subject, phone, message } = req.body;
+
+      // Validate input
+      if (!name || !email || !message) {
+        return res.status(400).json({
+          success: false,
+          message: "Name, email, and message are required",
+        });
+      }
+
+      // Check if message exists
+      const existingMessage = await Message.findById(id);
+      if (!existingMessage) {
+        return res.status(404).json({
+          success: false,
+          message: "Message not found",
+        });
+      }
+
+      // Update the message
+      const updatedMessage = await Message.findByIdAndUpdate(
+        id,
+        {
+          name,
+          email,
+          subject,
+          phone,
+          message,
+          updatedAt: new Date()
+        },
+        { new: true, runValidators: true }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Message updated successfully",
+        data: updatedMessage,
+      });
+    } catch (error) {
+      console.error("Error updating message:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to update message",
+        error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
+    }
+  },
+  // **
+  deleteMessage: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Check if message exists
+      const existingMessage = await Message.findById(id);
+      if (!existingMessage) {
+        return res.status(404).json({
+          success: false,
+          message: "Message not found",
+        });
+      }
+
+      // Delete the message
+      await Message.findByIdAndDelete(id);
+
+      res.status(200).json({
+        success: true,
+        message: "Message deleted successfully",
+      });
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to delete message",
+        error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
+    }
+  }
+,
+
 
   /**
    * Verify email connection (optional for app startup)

@@ -11,7 +11,7 @@ router
 router
   .route('/:id')
   .get(bookingController.getBooking)
-  .patch(bookingController.updateBooking)
+  .put(bookingController.updateBooking)
   .delete(bookingController.deleteBooking);
 
 module.exports = router;
