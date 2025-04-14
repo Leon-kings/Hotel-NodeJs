@@ -48,6 +48,11 @@ const bookingSchema = new mongoose.Schema({
     default: 0,
     min: [0, 'Number of children cannot be negative']
   },
+  status: {
+    type: String,
+    default: 'pending',
+   
+  },
   roomType: {
     type: String,
     required: [true, 'Room type is required'],

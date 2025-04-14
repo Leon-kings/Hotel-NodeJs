@@ -11,6 +11,7 @@ exports.createBooking = async (req, res) => {
       adults,
       children,
       roomType,
+      status,
     } = req.body;
 
     // Create new booking
@@ -22,6 +23,7 @@ exports.createBooking = async (req, res) => {
       adults,
       children,
       roomType,
+      status,
     });
 
     // Send confirmation email
@@ -159,6 +161,7 @@ exports.updateBooking = async (req, res) => {
       "checkInDate",
       "checkOutDate",
       "roomType",
+      "status"
     ];
     const updates = Object.keys(req.body);
 
