@@ -21,7 +21,7 @@ const messageController = {
    */
   sendMessageToAdmin: async (req, res) => {
   try {
-    const { name, email, subject, phone, message } = req.body;
+    const { name, email, subject, phone, message, status } = req.body;
 
     // Validate required fields
     if (!name || !email || !message) {
@@ -37,7 +37,8 @@ const messageController = {
       email,
       subject,
       phone,
-      message
+      message,
+      status,
     });
 
     // Send emails

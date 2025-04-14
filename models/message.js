@@ -1,43 +1,47 @@
 // models/Message.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const messageSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   email: {
     type: String,
     required: true,
-    match: [/.+\@.+\..+/, 'Please enter a valid email']
+    match: [/.+\@.+\..+/, "Please enter a valid email"],
   },
   phone: {
     type: String,
-    required: true
-  },
-  subject: {
-    type: String,
-    default: "Hotel Reservation"
-  },
-  message: {
-    type: String,
-    required: true
+    required: true,
   },
   status: {
     type: String,
-    enum: ['pending', 'sent', 'failed'],
-    default: 'pending'
+    default: "pending",
+  },
+  subject: {
+    type: String,
+    default: "Hotel Reservation",
+  },
+  message: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ["pending", "sent", "failed"],
+    default: "pending",
   },
   error: {
-    type: String
+    type: String,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   sentAt: {
-    type: Date
-  }
+    type: Date,
+  },
 });
 
-module.exports = mongoose.model('Message', messageSchema);
+module.exports = mongoose.model("Message", messageSchema);
