@@ -1,21 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const {
-  register,
-  login,
-  getMe,
-  logout,
-  getAllUsers
-} = require('../controllers/authController');
-const { protect } = require('../utils/auths');
-const { storage } = require('../config/cloudinary');
-const multer = require('multer');
+const authController = require('../controllers/authController');
+const { protect, authorize } = require('../utils/auths');
+const upload = require('../config/multer'); // Assuming you have multer configured for file uploads
 
-const upload = multer({ storage });
+// Authentication routes
+router.post('/', upload.single('profileImage'), authController.register);
+router.post('/login', authController.login);
+router.get('/logout', protect, authController.logout);
 
-router.post('/', upload.single('profileImage'), register);
-router.post('/', login);
-router.get('/', getMe);
-router.get('/logout', logout);
-router.get('/', getAllUsers);
+// User profile routes
+router.get('/:id',authController.getMe);
+
+// Admin routes
+router.get('/', authController.getAllUser);
+router.route('/:id')
+  .put(protect, upload.single('profileImage'), authController.Update)
+  .delete(protect, authorize('admin'), authController.Delete);
+
 module.exports = router;

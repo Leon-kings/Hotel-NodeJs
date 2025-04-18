@@ -87,6 +87,101 @@ exports.getMe = async (req, res, next) => {
   }
 };
 
+// @desc    Get all users
+exports.getAllUser = async (req, res, next) => {
+  try {
+    const users = await User.find();
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      data: users
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc    Delete user
+exports.Delete = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return next(new ErrorResponse(`User not found with id of ${req.params.id}`, 404));
+    }
+
+    // Delete profile image from cloudinary if exists
+    if (user.profileImage?.publicId) {
+      await cloudinary.uploader.destroy(user.profileImage.publicId);
+    }
+
+    await user.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      data: {}
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc    Update user details
+exports.Update = async (req, res, next) => {
+  try {
+    let user = await User.findById(req.params.id);
+
+    if (!user) {
+      return next(new ErrorResponse(`User not found with id of ${req.params.id}`, 404));
+    }
+
+    // Update fields
+    const fieldsToUpdate = {
+      fullname: req.body.fullname || user.fullname,
+      email: req.body.email || user.email,
+      phone: req.body.phone || user.phone,
+      role: req.body.role || user.role
+    };
+
+    // Handle password update
+    if (req.body.password) {
+      fieldsToUpdate.password = req.body.password;
+    }
+
+    // Handle image upload
+    if (req.file) {
+      // Delete old image if exists
+      if (user.profileImage?.publicId) {
+        await cloudinary.uploader.destroy(user.profileImage.publicId);
+      }
+
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'user-profiles',
+        width: 500,
+        height: 500,
+        crop: 'limit'
+      });
+
+      fieldsToUpdate.profileImage = {
+        url: result.secure_url,
+        publicId: result.public_id
+      };
+    }
+
+    user = await User.findByIdAndUpdate(req.params.id, fieldsToUpdate, {
+      new: true,
+      runValidators: true
+    });
+
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // @desc    Log user out / clear cookie
 exports.logout = async (req, res, next) => {
   res.cookie('token', 'none', {
@@ -130,74 +225,4 @@ const sendTokenResponse = (user, statusCode, res) => {
         profileImage: user.profileImage?.url
       }
     });
-};
-// @desc    Get all users (Admin only)
-// @route   GET /api/v1/auth/users
-// @access  Private/Admin
-exports.getAllUsers = async (req, res, next) => {
-  try {
-    // Advanced filtering, sorting, pagination
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach(el => delete queryObj[el]);
-
-    // Basic filtering
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-
-    let query = User.find(JSON.parse(queryStr));
-
-    // Sorting
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt');
-    }
-
-    // Field limiting
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v -password');
-    }
-
-    // Pagination
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 25;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const total = await User.countDocuments();
-
-    query = query.skip(startIndex).limit(limit);
-
-    // Execute query
-    const users = await query;
-
-    // Pagination result
-    const pagination = {};
-    if (endIndex < total) {
-      pagination.next = {
-        page: page + 1,
-        limit
-      };
-    }
-
-    if (startIndex > 0) {
-      pagination.prev = {
-        page: page - 1,
-        limit
-      };
-    }
-
-    res.status(200).json({
-      success: true,
-      count: users.length,
-      pagination,
-      data: users
-    });
-  } catch (err) {
-    next(err);
-  }
 };
