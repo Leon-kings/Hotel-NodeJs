@@ -1,31 +1,21 @@
 const express = require('express');
-const userController = require('../controllers/userController');
-const authController = require('../controllers/authController');
-
 const router = express.Router();
+const {
+  register,
+  login,
+  getMe,
+  logout,
+  getAllUsers
+} = require('../controllers/authController');
+const { protect } = require('../utils/auths');
+const { storage } = require('../config/cloudinary');
+const multer = require('multer');
 
-router.post('/signup', authController.signup);
-router.post('/login', authController.login);
+const upload = multer({ storage });
 
-// Protect all routes after this middleware
-router.use(authController.protect);
-
-router.get('/me', userController.getMe, userController.getUser);
-router.patch('/update-me', userController.updateMe);
-router.delete('/delete-me', userController.deleteMe);
-
-// Restrict all routes after this middleware to admin only
-router.use(authController.restrictTo('admin'));
-
-router
-  .route('/')
-  .get(userController.getAllUsers)
-  .post(userController.createUser);
-
-router
-  .route('/:id')
-  .get(userController.getUser)
-  .patch(userController.updateUser)
-  .delete(userController.deleteUser);
-
+router.post('/', upload.single('profileImage'), register);
+router.post('/', login);
+router.get('/', getMe);
+router.get('/logout', logout);
+router.get('/', getAllUsers);
 module.exports = router;

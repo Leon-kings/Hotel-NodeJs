@@ -7,7 +7,6 @@ const messageRoutes = require('./routes/messageRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const bookRoutes = require('./routes/bookRoutes')
 const userRoutes = require('./routes/userRoutes')
-const authRoutes = require('./controllers/authController')
 dotenv.config();
 require('dotenv').config();
 const app = express();
@@ -36,8 +35,8 @@ app.use('/83920/92303', subscriptionRoutes);
 // 
 app.use('/84383/92823', bookRoutes);
 // Start the server
-app.use('/api/v1/users', userRoutes);
-app.use('/api/v1/auth', authRoutes);
+app.use('/37829/7892', userRoutes);
+// 
 app.listen(PORT, () => console.log(`App started on port ${PORT}`));
 
 // Exporting the app for testing or other purposes
