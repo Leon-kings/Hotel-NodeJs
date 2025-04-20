@@ -13,7 +13,7 @@ const createUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
     const newUser = await User.create({
-      name: req.body.name,
+      fullname: req.body.name,
       email: req.body.email,
       phone: req.body.phone,
       status: req.body.status,
@@ -55,7 +55,7 @@ const updateUser = async (req, res) => {
       });
     }
     const newUser = await User.findByIdAndUpdate(req.params.id, {
-      name: req.body.name,
+      fullname: req.body.name,
       email: req.body.email,
       phone: req.body.phone,
       status: req.body.status,
