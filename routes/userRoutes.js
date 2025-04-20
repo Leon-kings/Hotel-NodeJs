@@ -9,12 +9,12 @@ const {
   authUser
 } = require("../controllers/authController");
 
-router.get("/users", getAllUsers);
-router.post("/users", createUser);
-router.get("/users/:id", getUserById);
-router.delete("/users/:id", deleteUser);
-router.put("/users/:id", updateUser);
-router.post('/users/login', authUser);
+router.get("/", getAllUsers);
+router.post("/", createUser);
+router.get("/:id", getUserById);
+router.delete("/:id", deleteUser);
+router.put("/:id", updateUser);
+router.post('/login', authUser);
 
 
 module.exports = router;
