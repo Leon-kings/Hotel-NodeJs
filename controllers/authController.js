@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const { sendPasswordResetEmail } = require("../config/auth");
 const createUser = async (req, res) => {
   try {
@@ -45,7 +46,8 @@ const forgotPassword = async (req, res) => {
     }
 
     // Generate reset code
-    const resetCode = crypto.randomInt(100000, 999999).toString();
+    // Fallback method
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
     const resetCodeExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
 
     // Save to user
@@ -231,5 +233,5 @@ module.exports = {
   updateUser,
   authUser,
   forgotPassword,
-  resetPassword
+  resetPassword,
 };

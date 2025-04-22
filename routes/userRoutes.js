@@ -8,14 +8,17 @@ const {
   updateUser,
   authUser,
 } = require("../controllers/authController");
-const authController = require("../controllers/authController");
+const {
+  forgotPassword,
+  resetPassword,
+} = require("../controllers/authController");
 router.get("/", getAllUsers);
 router.post("/", createUser);
 router.get("/:id", getUserById);
 router.delete("/:id", deleteUser);
 router.put("/:id", updateUser);
 router.post("/login", authUser);
-router.post("/forgot-password", authController.forgotPassword);
-router.post("/reset-password", authController.resetPassword);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password", resetPassword);
 
 module.exports = router;
