@@ -1,4 +1,6 @@
 const nodemailer = require('nodemailer');
+require('dotenv').config();
+
 const transporter = nodemailer.createTransport({
   service: 'gmail', // or any other email service
   host: 'smtp.gmail.com',
@@ -14,7 +16,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (options) => {
   try {
     const mailOptions = {
-      from: `LD <${config.EMAIL_FROM}>`,
+      from: `LD <${process.env.EMAIL_FROM}>`,
       to: options.email,
       subject: options.subject,
       text: options.message,
