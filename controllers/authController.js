@@ -48,6 +48,7 @@ const forgotPassword = async (req, res) => {
     // Generate reset code
     // Fallback method
     const resetCode = crypto.randomInt(100000, 999999).toString();
+    console.log(resetCode);
     const resetCodeExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
 
     // Save to user
