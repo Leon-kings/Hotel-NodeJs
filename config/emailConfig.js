@@ -10,3 +10,4 @@ module.exports = {
   },
   adminEmail: process.env.ADMIN_EMAIL || 'leonakingeneye2@gmail.com'
 };
+
