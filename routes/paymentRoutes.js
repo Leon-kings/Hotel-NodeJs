@@ -15,7 +15,7 @@ router.post('/verify',
 );
 
 // Process payment
-router.post('/process', 
+router.post('/', 
   authMiddleware,
   [
     check('amount').isFloat({ min: 90 }).withMessage('Minimum payment is $90'),
@@ -30,6 +30,6 @@ router.post('/process',
 router.get('/:id', authMiddleware, paymentController.getPaymentDetails);
 
 // Get user payment history
-router.get('/user/history', authMiddleware, paymentController.getUserPayments);
+router.get('/', authMiddleware, paymentController.getUserPayments);
 
 module.exports = router;

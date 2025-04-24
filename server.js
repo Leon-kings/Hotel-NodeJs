@@ -33,11 +33,11 @@ app.get('/', (req, res) => {
 });
 
 app.use('/63729/892308', messageRoutes);
-// After other middleware
+// 
 app.use('/83920/92303', subscriptionRoutes);
 // 
 app.use('/84383/92823', bookRoutes);
-// Start the server
+// 
 app.use('/37829/7892', userRoutes);
 // 
 app.use('/83292/8920', profileRoutes);
