@@ -21,18 +21,6 @@ const PaymentSchema = new mongoose.Schema({
     enum: ["credit_card", "paypal", "bank_transfer"],
     default: 'credit_card',
   },
-  cardLast4: {
-    type: String,
-    required: function () {
-      return this.paymentMethod === "credit_card";
-    },
-  },
-  cardBrand: {
-    type: String,
-    required: function () {
-      return this.paymentMethod === "credit_card";
-    },
-  },
   cardHolderName: {
     type: String,
     required: function () {
@@ -50,6 +38,9 @@ const PaymentSchema = new mongoose.Schema({
     type: String,
     unique: true,
     required: true,
+    default: function() {
+      return generateTransactionId();
+    }
   },
   email: {
     type: String,
@@ -64,14 +55,21 @@ const PaymentSchema = new mongoose.Schema({
   },
 });
 
-// Generate transaction ID before saving
+// Function to generate a unique transaction ID
+function generateTransactionId() {
+  const timestamp = Date.now().toString(36); // Base36 for shorter representation
+  const random = Math.floor(Math.random() * 1000000).toString(36);
+  return `TXN-${timestamp}-${random}`.toUpperCase();
+}
+
+// Alternative approach using pre-save hook (commented out since we're using default function)
+/*
 PaymentSchema.pre("save", function (next) {
   if (!this.transactionId) {
-    this.transactionId = `TXN-${Date.now()}-${Math.floor(
-      Math.random() * 10000
-    )}`;
+    this.transactionId = generateTransactionId();
   }
   next();
 });
+*/
 
 module.exports = mongoose.model("Payment", PaymentSchema);
