@@ -312,6 +312,55 @@ function generateAdminMessage(message) {
     </div>
   `;
 }
+// payment part********************
+exports.sendPaymentConfirmationEmail = async (userEmail, paymentDetails) => {
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || 'noreply@yourdomain.com',
+    to: userEmail,
+    subject: 'Payment Confirmation',
+    html: `
+      <h1>Thank you for your payment!</h1>
+      <p>We have received your payment of ${paymentDetails.amount} ${paymentDetails.currency}.</p>
+      <p>Transaction ID: ${paymentDetails.transactionId}</p>
+      <p>Payment Method: ${paymentDetails.paymentMethod}</p>
+      <p>Date: ${paymentDetails.createdAt.toLocaleString()}</p>
+      <p>If you have any questions, please contact our support team.</p>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Payment confirmation email sent to user');
+  } catch (error) {
+    console.error('Error sending payment confirmation email to user:', error);
+  }
+};
+
+const sendAdminPaymentNotification = async (adminEmail, paymentDetails) => {
+  const mailOptions = {
+    from: process.env.EMAIL_FROM || 'noreply@yourdomain.com',
+    to: adminEmail,
+    subject: 'New Payment Received',
+    html: `
+      <h1>New Payment Notification</h1>
+      <p>A new payment has been received:</p>
+      <ul>
+        <li>Amount: ${paymentDetails.amount} ${paymentDetails.currency}</li>
+        <li>User Email: ${paymentDetails.email}</li>
+        <li>Transaction ID: ${paymentDetails.transactionId}</li>
+        <li>Payment Method: ${paymentDetails.paymentMethod}</li>
+        <li>Date: ${paymentDetails.createdAt.toLocaleString()}</li>
+      </ul>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Payment notification email sent to admin');
+  } catch (error) {
+    console.error('Error sending payment notification email to admin:', error);
+  }
+};
 
 // Custom error class
 class EnhancedError extends Error {

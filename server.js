@@ -7,7 +7,8 @@ const messageRoutes = require('./routes/messageRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const bookRoutes = require('./routes/bookRoutes');
 const userRoutes = require('./routes/userRoutes');
-const profileRoutes = require('./routes/profileRoutes')
+const profileRoutes = require('./routes/profileRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 dotenv.config();
 require('dotenv').config();
@@ -40,6 +41,8 @@ app.use('/84383/92823', bookRoutes);
 app.use('/37829/7892', userRoutes);
 // 
 app.use('/83292/8920', profileRoutes);
+// 
+app.use('/78799/2457', paymentRoutes);
 // 
 app.listen(PORT, () => console.log(`App started on port ${PORT}`));
 
