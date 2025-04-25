@@ -3,6 +3,15 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { sendPasswordResetEmail } = require("../config/auth");
+
+const generateToken = async(userId) => {
+  return jwt.sign(
+    { userId },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
+  );
+};
+
 const createUser = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -235,4 +244,5 @@ module.exports = {
   authUser,
   forgotPassword,
   resetPassword,
+  generateToken
 };

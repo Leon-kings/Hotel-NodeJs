@@ -12,6 +12,7 @@ const {
   forgotPassword,
   resetPassword,
 } = require("../controllers/authController");
+const { verifyToken } = require("../controllers/verifyTokenController");
 router.get("/", getAllUsers);
 router.post("/", createUser);
 router.get("/:id", getUserById);
@@ -20,5 +21,6 @@ router.put("/:id", updateUser);
 router.post("/login", authUser);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+router.get("/verify-token", verifyToken);
 
 module.exports = router;

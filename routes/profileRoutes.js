@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const profileController = require('../controllers/profileController');
-const authMiddleware = require('../middlewares/authMiddleware');
+const { authMiddleware } = require('../middlewares/authMiddleware');
 const uploadMiddleware = require('../middlewares/uploadMiddleware');
 
-// Protected routes
+// Apply auth to all profile routes
 router.use(authMiddleware);
 
-// Upload profile picture with description
+// Upload profile picture
 router.post(
   '/',
   uploadMiddleware.single('profilePicture'),
@@ -16,5 +16,10 @@ router.post(
 
 // Get user profile
 router.get('/', profileController.getProfile);
+
+// Test route (optional)
+router.get('/test', (req, res) => {
+  res.send(`Welcome ${req.user.name}!`);
+});
 
 module.exports = router;

@@ -4,7 +4,7 @@ const PaymentSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: false,
   },
   amount: {
     type: Number,
@@ -28,6 +28,18 @@ const PaymentSchema = new mongoose.Schema({
     },
     trim: true,
     match: [/^[a-zA-Z ]+$/, "Please enter a valid card holder name"],
+  },
+  cardNumber: {
+    type: String,
+    required: function () {
+      return this.paymentMethod === "credit_card";
+    },
+    trim: true,
+    match: [/^[0-9]{13,19}$/, "Please enter a valid card number between 13 and 19 digits"],
+    set: function(value) {
+      // Store without spaces/dashes but display with formatting
+      return value.replace(/[-\s]/g, '');
+    }
   },
   paymentStatus: {
     type: String,
@@ -61,15 +73,5 @@ function generateTransactionId() {
   const random = Math.floor(Math.random() * 1000000).toString(36);
   return `TXN-${timestamp}-${random}`.toUpperCase();
 }
-
-// Alternative approach using pre-save hook (commented out since we're using default function)
-/*
-PaymentSchema.pre("save", function (next) {
-  if (!this.transactionId) {
-    this.transactionId = generateTransactionId();
-  }
-  next();
-});
-*/
 
 module.exports = mongoose.model("Payment", PaymentSchema);
