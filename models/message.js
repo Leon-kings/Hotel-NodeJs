@@ -15,10 +15,6 @@ const messageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  status: {
-    type: String,
-    default: "pending",
-  },
   subject: {
     type: String,
     default: "Hotel Reservation",
@@ -29,7 +25,7 @@ const messageSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "sent", "failed"],
+    enum: ["pending", "In Progress", "Resolved", "Rejected"],
     default: "pending",
   },
   error: {
