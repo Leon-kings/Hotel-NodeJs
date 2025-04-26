@@ -1,17 +1,17 @@
 const express = require('express');
-const bookingController = require('../controllers/bookController');
+const bookController = require('../controllers/bookController');
 
 const router = express.Router();
 
 router
   .route('/')
-  .post(bookingController.createBooking)
-  .get(bookingController.getAllBookings);
+  .post(bookController.createBooking)
+  .get(bookController.getAllBookings);
 
 router
   .route('/:id')
-  .get(bookingController.getBooking)
-  .put(bookingController.updateBooking)
-  .delete(bookingController.deleteBooking);
+  .get(bookController.getBooking)
+  .put(bookController.updateBooking)
+  .delete(bookController.deleteBooking);
 
 module.exports = router;
