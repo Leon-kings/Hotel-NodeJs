@@ -124,15 +124,7 @@ const messageController = {
   editMessage: async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, email, subject, phone, message } = req.body;
-
-      // Validate input
-      if (!name || !email || !message) {
-        return res.status(400).json({
-          success: false,
-          message: "Name, email, and message are required",
-        });
-      }
+      const { status, message } = req.body;
 
       // Check if message exists
       const existingMessage = await Message.findById(id);
@@ -143,17 +135,33 @@ const messageController = {
         });
       }
 
+      // Prepare update object with only allowed fields
+      const updateFields = {
+        updatedAt: new Date()
+      };
+
+      // Only add status to update if it was provided
+      if (status !== undefined) {
+        updateFields.status = status;
+      }
+
+      // Only add message to update if it was provided
+      if (message !== undefined) {
+        updateFields.message = message;
+      }
+
+      // Check if at least one field is being updated
+      if (Object.keys(updateFields).length === 1) { // only updatedAt was added
+        return res.status(400).json({
+          success: false,
+          message: "No valid fields to update (only status or message are allowed)",
+        });
+      }
+
       // Update the message
       const updatedMessage = await Message.findByIdAndUpdate(
         id,
-        {
-          name,
-          email,
-          subject,
-          phone,
-          message,
-          updatedAt: new Date()
-        },
+        updateFields,
         { new: true, runValidators: true }
       );
 
@@ -172,6 +180,7 @@ const messageController = {
     }
   },
   // **
+  
   deleteMessage: async (req, res) => {
     try {
       const { id } = req.params;
