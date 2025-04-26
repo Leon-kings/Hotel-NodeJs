@@ -25,7 +25,7 @@ const messageSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "In Progress", "Resolved", "Rejected"],
+    enum: ["pending", "In_Progress", "Resolved", "Rejected"],
     default: "pending",
   },
   error: {
