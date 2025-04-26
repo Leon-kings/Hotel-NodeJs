@@ -124,7 +124,15 @@ const messageController = {
   editMessage: async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, message } = req.body;
+      const { name, email, subject, phone, message } = req.body;
+
+      // Validate input
+      if (!name || !email || !message) {
+        return res.status(400).json({
+          success: false,
+          message: "Name, email, and message are required",
+        });
+      }
 
       // Check if message exists
       const existingMessage = await Message.findById(id);
@@ -135,33 +143,17 @@ const messageController = {
         });
       }
 
-      // Prepare update object with only allowed fields
-      const updateFields = {
-        updatedAt: new Date()
-      };
-
-      // Only add status to update if it was provided
-      if (status !== undefined) {
-        updateFields.status = status;
-      }
-
-      // Only add message to update if it was provided
-      if (message !== undefined) {
-        updateFields.message = message;
-      }
-
-      // Check if at least one field is being updated
-      if (Object.keys(updateFields).length === 1) { // only updatedAt was added
-        return res.status(400).json({
-          success: false,
-          message: "No valid fields to update (only status or message are allowed)",
-        });
-      }
-
       // Update the message
       const updatedMessage = await Message.findByIdAndUpdate(
         id,
-        updateFields,
+        {
+          name,
+          email,
+          subject,
+          phone,
+          message,
+          updatedAt: new Date()
+        },
         { new: true, runValidators: true }
       );
 
@@ -180,7 +172,6 @@ const messageController = {
     }
   },
   // **
-  
   deleteMessage: async (req, res) => {
     try {
       const { id } = req.params;
@@ -211,7 +202,44 @@ const messageController = {
     }
   }
 ,
+updateStatus: async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
+    // Check if message exists
+    const existingMessage = await Message.findById(id);
+    if (!existingMessage) {
+      return res.status(404).json({
+        success: false,
+        message: "Message not found",
+      });
+    }
+
+    // Update only the status
+    const updatedMessage = await Message.findByIdAndUpdate(
+      id,
+      { 
+        status,
+        updatedAt: new Date() 
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Status updated successfully",
+      data: updatedMessage,
+    });
+  } catch (error) {
+    console.error("Error updating status:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update status",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+},
 
   /**
    * Verify email connection (optional for app startup)

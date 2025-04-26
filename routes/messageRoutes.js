@@ -7,5 +7,5 @@ router.get("/", messageController.getMessages);
 router.get("/:id", messageController.getMessageByID);
 router.put("/:id", messageController.editMessage);
 router.delete("/:id", messageController.deleteMessage);
-
+router.put("/status",messageController.updateStatus);
 module.exports = router;
