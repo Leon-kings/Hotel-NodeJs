@@ -1,15 +1,15 @@
-const express = require('express');
-const bookController = require('../controllers/bookController');
+const express = require("express");
+const bookController = require("../controllers/bookController");
 
 const router = express.Router();
 
 router
-  .route('/')
+  .route("/")
   .post(bookController.createBooking)
   .get(bookController.getAllBookings);
 
 router
-  .route('/:id')
+  .route("/:id")
   .get(bookController.getBooking)
   .put(bookController.updateBooking)
   .delete(bookController.deleteBooking);
