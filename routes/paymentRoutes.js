@@ -1,36 +1,12 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const paymentController = require("../controllers/paymentControllers");
-const { authMiddleware } = require("../middlewares/authMiddleware");
-const { check } = require("express-validator");
-
-// Verify payment before processing
-router.post(
-  "/verify",
-  authMiddleware,
-  [check("paymentMethodId").notEmpty(), check("amount").isFloat({ min: 90 })],
-  paymentController.verifyPayment
-);
+const paymentController = require('../controllers/paymentControllers');
+// const authMiddleware = require('../middlewares/authMiddleware');
 
 // Process payment
-router.post(
-  "/",
-  authMiddleware,
-  [
-    check("amount").isFloat({ min: 90 }).withMessage("Minimum payment is $90"),
-    check("cardHolderName")
-      .notEmpty()
-      .matches(/^[a-zA-Z ]+$/),
-    check("email").isEmail().normalizeEmail(),
-    check("paymentMethodId").notEmpty(),
-  ],
-  paymentController.processPayment
-);
+router.post('/process', paymentController.processPayment);
 
-// Get payment details
-router.get("/:id", authMiddleware, paymentController.getPaymentDetails);
-
-// Get user payment history
-router.get("/", authMiddleware, paymentController.getUserPayments);
+// Get payment by ID
+router.get('/:paymentId', paymentController.getPayment);
 
 module.exports = router;

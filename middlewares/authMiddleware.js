@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const User = require('../models/User');
 require('dotenv').config();
 
 // Token generation function (used during login/registration)
-const generateToken = (userId) => {
+const generateToken = (userId, isAdmin = false) => {
   return jwt.sign(
-    { userId },
+    { userId, isAdmin },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
   );
@@ -28,6 +28,7 @@ const authMiddleware = async (req, res, next) => {
   // 2. Token validation
   if (!token) {
     return res.status(401).json({
+      success: false,
       status: "failed",
       message: "Authentication required. Please log in."
     });
@@ -41,6 +42,7 @@ const authMiddleware = async (req, res, next) => {
     const currentUser = await User.findById(decoded.userId).select('-password');
     if (!currentUser) {
       return res.status(401).json({
+        success: false,
         status: "failed",
         message: "User account not found"
       });
@@ -50,21 +52,27 @@ const authMiddleware = async (req, res, next) => {
     if (currentUser.passwordChangedAt && 
         decoded.iat < Math.floor(currentUser.passwordChangedAt.getTime() / 1000)) {
       return res.status(401).json({
+        success: false,
         status: "failed",
         message: "Password was changed. Please log in again."
       });
     }
 
     // 6. Attach user to request
-    req.user = currentUser;
+    req.user = {
+      _id: currentUser._id,
+      email: currentUser.email,
+      isAdmin: currentUser.isAdmin || false
+    };
     
     // 7. Token rotation (optional security practice)
-    const newToken = generateToken(currentUser._id);
+    const newToken = generateToken(currentUser._id, currentUser.isAdmin);
     res.setHeader('Authorization', `Bearer ${newToken}`);
     res.cookie('jwt', newToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     });
 
     next();
@@ -83,6 +91,7 @@ const authMiddleware = async (req, res, next) => {
     }
 
     return res.status(statusCode).json({
+      success: false,
       status: "failed",
       message,
       ...(process.env.NODE_ENV === 'development' && { error: err.message })
@@ -90,7 +99,39 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+// Admin-only middleware
+const adminMiddleware = (req, res, next) => {
+  if (!req.user || !req.user.isAdmin) {
+    return res.status(403).json({
+      success: false,
+      message: 'Unauthorized. Admin access required.'
+    });
+  }
+  next();
+};
+
+// Optional: Email verification middleware
+const verifiedEmailMiddleware = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user.isEmailVerified) {
+      return res.status(403).json({
+        success: false,
+        message: 'Please verify your email address before accessing this resource.'
+      });
+    }
+    next();
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error checking email verification status'
+    });
+  }
+};
+
 module.exports = {
   authMiddleware,
+  adminMiddleware,
+  verifiedEmailMiddleware,
   generateToken
 };

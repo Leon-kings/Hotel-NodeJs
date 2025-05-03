@@ -1,77 +1,27 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const PaymentSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: false,
+const cardDetailsSchema = new mongoose.Schema({
+  number: { type: String }, // Store encrypted in production
+  name: { type: String },
+  expiry: { type: String },
+  cvv: { type: String } // Note: CVV shouldn't be stored long-term in production
+}, { _id: false });
+
+const paymentSchema = new mongoose.Schema({
+  orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true },
+  amount: { type: Number, required: true },
+  currency: { type: String, default: 'USD' },
+  paymentMethod: { type: String, enum: ['credit', 'paypal'], required: true },
+  customerEmail: { type: String, required: true },
+  cardDetails: { type: cardDetailsSchema },
+  status: { 
+    type: String, 
+    enum: ['pending', 'completed', 'failed', 'refunded'], 
+    default: 'pending' 
   },
-  amount: {
-    type: Number,
-    required: true,
-    min: [90, "Minimum payment amount is $90"],
-  },
-  currency: {
-    type: String,
-    default: "USD",
-  },
-  paymentMethod: {
-    type: String,
-    required: true,
-    enum: ["credit_card", "paypal", "bank_transfer"],
-    default: 'credit_card',
-  },
-  cardHolderName: {
-    type: String,
-    required: function () {
-      return this.paymentMethod === "credit_card";
-    },
-    trim: true,
-    match: [/^[a-zA-Z ]+$/, "Please enter a valid card holder name"],
-  },
-  cardNumber: {
-    type: String,
-    required: function () {
-      return this.paymentMethod === "credit_card";
-    },
-    trim: true,
-    match: [/^[0-9]{13,19}$/, "Please enter a valid card number between 13 and 19 digits"],
-    set: function(value) {
-      // Store without spaces/dashes but display with formatting
-      return value.replace(/[-\s]/g, '');
-    }
-  },
-  paymentStatus: {
-    type: String,
-    enum: ["pending", "completed", "failed", "refunded", "insufficient_funds"],
-    default: "pending",
-  },
-  transactionId: {
-    type: String,
-    unique: true,
-    required: true,
-    default: function() {
-      return generateTransactionId();
-    }
-  },
-  email: {
-    type: String,
-    required: true,
-    match: [/.+\@.+\..+/, "Please enter a valid email"],
-  },
-  description: String,
-  failureReason: String,
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+  transactionId: { type: String },
+  gatewayResponse: { type: mongoose.Schema.Types.Mixed },
+  createdAt: { type: Date, default: Date.now }
 });
 
-// Function to generate a unique transaction ID
-function generateTransactionId() {
-  const timestamp = Date.now().toString(36); // Base36 for shorter representation
-  const random = Math.floor(Math.random() * 1000000).toString(36);
-  return `TXN-${timestamp}-${random}`.toUpperCase();
-}
-
-module.exports = mongoose.model("Payment", PaymentSchema);
+module.exports = mongoose.model('Payment', paymentSchema);

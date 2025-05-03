@@ -312,6 +312,96 @@ function generateAdminMessage(message) {
     </div>
   `;
 }
+
+exports.sendOrderConfirmationEmail = async (order) => {
+  try {
+    const mailOptions = {
+      from: `"Hotel Service" <${config.user}>`,
+      to: order.customerEmail,
+      subject: `Your Order #${order._id} Confirmation`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2d3748;">Order Confirmation</h2>
+          <p>Thank you for your order! Here are your order details:</p>
+          
+          <h3 style="color: #4a5568;">Order #${order._id}</h3>
+          <p>Status: <strong>${order.status}</strong></p>
+          <p>Date: ${order.createdAt.toLocaleString()}</p>
+          
+          <h3 style="color: #4a5568; margin-top: 20px;">Items Ordered</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+              <tr style="background-color: #f7fafc;">
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Item</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Quantity</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Price</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0;">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.map(item => `
+                <tr>
+                  <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">
+                    ${item.name}
+                    ${item.roomNumber ? `<div style="font-size: 0.8em; color: #718096;">Room: ${item.roomNumber}</div>` : ''}
+                  </td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${item.quantity}</td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">$${item.price.toFixed(2)}</td>
+                  <td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">$${item.subtotal}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="padding: 10px; text-align: right; font-weight: bold;">Total:</td>
+                <td style="padding: 10px; font-weight: bold;">$${order.totalAmount.toFixed(2)}</td>
+              </tr>
+            </tfoot>
+          </table>
+          
+          <p>If you have any questions about your order, please contact us.</p>
+          <p>Thank you for choosing our service!</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Order confirmation email sent to ${order.customerEmail}`);
+  } catch (error) {
+    console.error('Error sending order confirmation email:', error);
+  }
+};
+
+// Send payment confirmation email
+exports.sendPaymentConfirmationEmail = async (order, payment) => {
+  try {
+    const mailOptions = {
+      from: `"Hotel Service" <${config.user}>`,
+      to: order.customerEmail,
+      subject: `Payment Confirmation for Order #${order._id}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2d3748;">Payment Confirmation</h2>
+          <p>Your payment has been successfully processed. Here are the details:</p>
+          
+          <h3 style="color: #4a5568;">Order #${order._id}</h3>
+          <p>Payment Method: <strong>${payment.paymentMethod === 'credit' ? 'Credit Card' : 'PayPal'}</strong></p>
+          <p>Amount Paid: <strong>$${payment.amount.toFixed(2)}</strong></p>
+          <p>Transaction ID: <strong>${payment.transactionId}</strong></p>
+          <p>Date: ${payment.createdAt.toLocaleString()}</p>
+          
+          <p>Your order is now being processed. You'll receive another email once your items are delivered.</p>
+          <p>Thank you for your purchase!</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Payment confirmation email sent to ${order.customerEmail}`);
+  } catch (error) {
+    console.error('Error sending payment confirmation email:', error);
+  }
+};
 // payment part********************
 exports.sendPaymentConfirmationEmail = async (userEmail, paymentDetails) => {
   const mailOptions = {
@@ -361,6 +451,7 @@ const sendAdminPaymentNotification = async (adminEmail, paymentDetails) => {
     console.error('Error sending payment notification email to admin:', error);
   }
 };
+
 
 // Custom error class
 class EnhancedError extends Error {
