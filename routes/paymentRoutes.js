@@ -4,7 +4,7 @@ const paymentController = require('../controllers/paymentControllers');
 // const authMiddleware = require('../middlewares/authMiddleware');
 
 // Process payment
-router.post('/process', paymentController.processPayment);
+router.post('/', paymentController.processPayment);
 
 // Get payment by ID
 router.get('/:paymentId', paymentController.getPayment);

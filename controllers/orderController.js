@@ -7,7 +7,7 @@ const { processPayment } = require('../config/emailConfig');
 exports.createOrder = async (req, res) => {
   try {
     const { customerEmail, totalAmount, paymentMethod, items } = req.body;
-    const userId = req.user._id; // From auth middleware
+
 
     // Validate items
     if (!items || items.length === 0) {
@@ -25,7 +25,7 @@ exports.createOrder = async (req, res) => {
       totalAmount,
       paymentMethod,
       items: orderItems,
-      userId
+   
     });
 
     await order.save();
@@ -106,7 +106,7 @@ exports.getOrder = async (req, res) => {
 // Get user's orders
 exports.getUserOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.user._id })
+    const orders = await Order.find()
       .sort({ createdAt: -1 })
       .populate('paymentId');
 

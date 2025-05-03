@@ -7,17 +7,11 @@ const { sendPaymentConfirmationEmail } = require('../config/emailServices');
 exports.processPayment = async (req, res) => {
   try {
     const { orderId, paymentMethod, card } = req.body;
-    const userId = req.user._id;
 
     // Find the order
-    const order = await Order.findById(orderId);
+    const order = await Order.findById();
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
-    }
-
-    // Verify user owns this order
-    if (order.userId.toString() !== userId.toString()) {
-      return res.status(403).json({ success: false, message: 'Unauthorized' });
     }
 
     // Don't process if order is already completed
@@ -78,7 +72,6 @@ exports.processPayment = async (req, res) => {
     });
   }
 };
-
 // Get payment by ID
 exports.getPayment = async (req, res) => {
   try {

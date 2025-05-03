@@ -5,7 +5,7 @@ const orderItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
   quantity: { type: Number, default: 1 },
   price: { type: Number, required: true },
-  roomNumber: { type: String, default: "N/A" },
+  roomNumber: { type: String, default: 1 },
   description: { type: String },
   category: { type: String },
   subtotal: { type: Number, required: true }
