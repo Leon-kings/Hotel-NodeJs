@@ -146,6 +146,19 @@ const getUserById = async (req, res) => {
     });
   }
 };
+const getUserByEmail = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.email);
+    res.status(200).json({
+      status: "success",
+      user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+    });
+  }
+};
 
 const updateUser = async (req, res) => {
   try {
@@ -244,5 +257,6 @@ module.exports = {
   authUser,
   forgotPassword,
   resetPassword,
+  getUserByEmail,
   generateToken
 };

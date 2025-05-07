@@ -7,6 +7,7 @@ const {
   deleteUser,
   updateUser,
   authUser,
+  getUserByEmail,
 } = require("../controllers/authController");
 const {
   forgotPassword,
@@ -19,6 +20,7 @@ router.get("/:id", getUserById);
 router.delete("/:id", deleteUser);
 router.put("/:id", updateUser);
 router.post("/login", authUser);
+router.get("/user/email", getUserByEmail);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 router.get("/verify-token", verifyToken);
