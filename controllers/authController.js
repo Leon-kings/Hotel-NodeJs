@@ -248,6 +248,7 @@ const authUser = async (req, res) => {
   }
 };
 
+
 module.exports = {
   createUser,
   getAllUsers,

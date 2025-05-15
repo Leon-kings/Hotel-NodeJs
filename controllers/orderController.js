@@ -8,7 +8,6 @@ exports.createOrder = async (req, res) => {
   try {
     const { customerEmail, totalAmount, paymentMethod, items } = req.body;
 
-
     // Validate items
     if (!items || items.length === 0) {
       return res.status(400).json({ success: false, message: 'No items in order' });
