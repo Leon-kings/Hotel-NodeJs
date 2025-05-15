@@ -22,6 +22,7 @@ const userSchema = mongoose.Schema({
         enum: ['user', 'seller', 'admin'],
         default: 'user'
     }
+    
 });
 
 const User = mongoose.model('User', userSchema);
