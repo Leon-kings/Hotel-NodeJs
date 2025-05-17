@@ -5,5 +5,8 @@ const router = express.Router();
 
 router.post('/', testimonialController.submitTestimonial);
 router.get('/', testimonialController.getTestimonials);
+router.put('/', testimonialController.updateTestimonial);
+router.get('/', testimonialController.getTestimonialById);
+router.delete('/', testimonialController.deleteTestimonial);
 
 module.exports = router;
